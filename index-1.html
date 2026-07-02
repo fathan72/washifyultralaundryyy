@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Washify Ultra Pro</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f172a, #020617);
+            color: white;
+            overflow: auto;
+        }
+
+        .section {
+            display: none;
+            min-height: 100vh;
+            padding: 40px 8%;
+        }
+
+        .active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            animation: fade 0.5s;
+        }
+
+        @keyframes fade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            padding: 35px;
+            border-radius: 20px;
+            width: 320px;
+            margin: auto;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(56, 189, 248, 0.3);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: none;
+            background: #111827;
+            color: white;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #38bdf8, #6366f1);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #38bdf8;
+        }
+
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .right img {
+            width: 380px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .cards {
+            display: flex;
+            gap: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 200px;
+            text-align: center;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px #38bdf8;
+        }
+
+        .table-box {
+            margin-top: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            color: #38bdf8;
+        }
+
+        tr {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .qr {
+            width: 200px;
+            margin: 20px auto;
+            display: none;
+        }
+
+        .invoice {
+            background: white;
+            color: black;
+            padding: 20px;
+            border-radius: 15px;
+            width: 320px;
+            margin: auto;
+        }
+
+        .line {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .nav-btn {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .scroll-btn {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .scroll-btn button {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+        }
+
+        /* LOADING */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #020617;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 999;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top: 5px solid #38bdf8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOADING -->
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Memproses...</p>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="section active" id="login">
+        <div class="login-box">
+            <h2> Washify Ultra</h2>
+            <input id="user" placeholder="Username">
+            <input id="pass" type="password" placeholder="Password">
+            <button onclick="login()">Masuk</button>
+            <button onclick="show('daftar')">Daftar</button>
+        </div>
+    </div>
+
+    <!-- DAFTAR -->
+    <div class="section" id="daftar">
+        <div class="login-box">
+            <h2> Daftar</h2>
+            <input id="regUser" placeholder="Username">
+            <input id="regPass" type="password" placeholder="Password">
+            <button onclick="daftar()">Daftar</button>
+            <button onclick="show('login')">⬅ Kembali</button>
+        </div>
+    </div>
+
+    <!-- BERANDA -->
+    <div class="section" id="beranda">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h2> Washify Dashboard</h2>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div class="dashboard">
+            <div>
+                <h1 id="welcome"> Selamat Datang</h1>
+                <p>Kelola laundry kamu dengan mudah & modern</p>
+
+                <div class="cards">
+                    <div class="card" onclick="pilih('Cuci Kering',6000)">
+                        <h3>Cuci Kering</h3>
+                        <p>Rp 6.000 / kg</p>
+                    </div>
+                    <div class="card" onclick="pilih('Cuci + Setrika',8000)">
+                        <h3>Cuci + Setrika</h3>
+                        <p>Rp 8.000 / kg</p>
+                    </div>
+                    <div class="card" onclick="pilih('Express',12000)">
+                        <h3>Express</h3>
+                        <p>Rp 12.000 / kg</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right">
+                <img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952">
+            </div>
+        </div>
+
+        <div class="table-box">
+            <h2> Data Transaksi</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nama</th>
+                        <th>Layanan</th>
+                        <th>Kg</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTable"></tbody>
+            </table>
+
+            <div class="nav-btn">
+                <button onclick="kembaliLogin()"> Login</button>
+                <button onclick="lihatPesanan()"> Cek Pesanan</button>
+                <button onclick="lanjutTransaksi()">Lanjutkan ➡</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CEK -->
+    <div class="section" id="cek">
+        <h2 style="text-align:center;"> Cek Pesanan</h2>
+        <div class="table-box">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Layanan</th>
+                        <th>Kg</th>
+                        <th>Status</th>
+                        <th>Estimasi</th>
+                    </tr>
+                </thead>
+                <tbody id="cekTable"></tbody>
+            </table>
+            <div class="nav-btn">
+                <button onclick="show('beranda')">⬅ Kembali</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BAYAR -->
+    <div class="section" id="bayar">
+        <h2>Pembayaran</h2>
+
+        <select id="metode" onchange="showBayar()">
+            <option value="">-- Pilih --</option>
+            <option>BCA</option>
+            <option>Mandiri</option>
+            <option>DANA</option>
+            <option>OVO</option>
+            <option>GoPay</option>
+            <option>QRIS</option>
+            <option>Cash</option>
+        </select>
+
+        <img id="qrImg" class="qr" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=WashifyQRIS">
+
+        <p id="info"></p>
+
+        <div class="nav-btn">
+            <button onclick="show('beranda')">⬅ Kembali</button>
+            <button onclick="buatInvoice()">Bayar ➡</button>
+        </div>
+    </div>
+
+    <!-- INVOICE -->
+    <div class="section" id="invoice">
+        <h2 style="text-align:center;">Invoice</h2>
+
+        <div class="invoice">
+            <h3 style="text-align:center;color:#38bdf8;">Washify</h3>
+            <hr>
+
+            <div class="line"><span>No</span><span id="invNo"></span></div>
+            <div class="line"><span>Tanggal</span><span id="invTanggal"></span></div>
+            <div class="line"><span>Nama</span><span id="invNama"></span></div>
+            <div class="line"><span>Layanan</span><span id="invLayanan"></span></div>
+            <div class="line"><span>Kg</span><span id="invKg"></span></div>
+            <div class="line"><span>Metode</span><span id="invMetode"></span></div>
+
+            <hr>
+
+            <div class="line"><b>Total</b><b id="invTotal"></b></div>
+
+            <div class="nav-btn">
+                <button onclick="show('beranda')">⬅ Kembali</button>
+                <button onclick="window.print()">🖨 Print</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCROLL -->
+    <div class="scroll-btn">
+        <button onclick="scrollUp()">⬆</button>
+        <button onclick="scrollDown()">⬇</button>
+    </div>
+
+    <script>
+        let keranjang = [];
+        let riwayat = [];
+        let userLogin = "";
+
+        /* LOADING */
+        function showLoading() { loading.style.display = "flex"; }
+        function hideLoading() { setTimeout(() => loading.style.display = "none", 700); }
+
+        /* USER STORAGE */
+        function getUsers() { return JSON.parse(localStorage.getItem("users") || "[]"); }
+        function saveUsers(u) { localStorage.setItem("users", JSON.stringify(u)); }
+
+        /* DAFTAR */
+        function daftar() {
+            let u = regUser.value, p = regPass.value;
+            if (!u || !p) return alert("Isi semua!");
+            showLoading();
+            setTimeout(() => {
+                let users = getUsers();
+                if (users.find(x => x.user == u)) { hideLoading(); return alert("Sudah ada!"); }
+                users.push({ user: u, pass: p });
+                saveUsers(users);
+                hideLoading();
+                alert("Berhasil daftar!");
+                show("login");
+            }, 700);
+        }
+
+        /* LOGIN */
+        function login() {
+            let u = user.value, p = pass.value;
+            let users = getUsers();
+            let found = users.find(x => x.user == u && x.pass == p);
+            if (!found) return alert("Salah!");
+            showLoading();
+            setTimeout(() => {
+                userLogin = u;
+                welcome.innerText = " Selamat datang kembali, " + u;
+                hideLoading();
+                show("beranda");
+            }, 700);
+        }
+
+        /* SISANYA TETAP */
+        function show(id) {
+            document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+            document.getElementById(id).classList.add("active");
+        }
+
+        function logout() {
+            if (confirm("Yakin logout?")) {
+                keranjang = [];
+                renderTable();
+                show("login");
+            }
+        }
+
+        function pilih(nama, harga) {
+            let kg = prompt("Masukkan jumlah kg:");
+            if (!kg || kg <= 0) return;
+
+            let total = harga * kg;
+
+            keranjang.push({
+                nama: userLogin,
+                layanan: nama,
+                kg: kg,
+                total: total,
+                status: "Diproses",
+                estimasi: nama == "Express" ? "3 Jam" : "1-2 Hari"
+            });
+
+            renderTable();
+        }
+
+        function renderTable() {
+            let html = "";
+            keranjang.forEach((item, index) => {
+                html += `
+<tr>
+<td>${item.nama}</td>
+<td>${item.layanan}</td>
+<td>${item.kg}</td>
+<td>Rp ${item.total.toLocaleString("id-ID")}</td>
+<td>
+<select onchange="ubahStatus(${index}, this.value)">
+<option ${item.status == 'Diproses' ? 'selected' : ''}>Diproses</option>
+<option ${item.status == 'Selesai' ? 'selected' : ''}>Selesai</option>
+</select>
+</td>
+<td><button onclick="hapus(${index})"> X </button></td>
+</tr>`;
+            });
+            dataTable.innerHTML = html;
+        }
+
+        function ubahStatus(i, val) {
+            keranjang[i].status = val;
+            renderTable();
+        }
+
+        function hapus(i) {
+            keranjang.splice(i, 1);
+            renderTable();
+        }
+
+        function kembaliLogin() {
+            keranjang = [];
+            renderTable();
+            show("login");
+        }
+
+        function lanjutTransaksi() {
+            if (keranjang.length == 0) { alert("Belum ada transaksi!"); return; }
+            window.totalSemua = keranjang.reduce((a, b) => a + b.total, 0);
+            alert(" Total semua: Rp " + window.totalSemua.toLocaleString("id-ID"));
+            show("bayar");
+        }
+
+        function showBayar() {
+            let metode = document.getElementById("metode").value;
+            let qr = document.getElementById("qrImg");
+            let info = document.getElementById("info");
+
+            qr.style.display = "none";
+            info.innerText = "";
+
+            if (metode == "QRIS") { qr.style.display = "block"; info.innerText = "Scan QR untuk bayar"; }
+            else if (metode == "BCA") { info.innerText = "Transfer BCA: 1234567890"; }
+            else if (metode == "Mandiri") { info.innerText = "Transfer Mandiri: 9876543210"; }
+            else if (metode == "DANA" || metode == "OVO" || metode == "GoPay") { info.innerText = "Kirim ke: 08123456789"; }
+            else if (metode == "Cash") { info.innerText = "Bayar langsung di kasir"; }
+        }
+
+        function buatInvoice() {
+            showLoading();
+            setTimeout(() => {
+                let metode = document.getElementById("metode").value;
+
+                invNo.innerText = "INV" + Date.now();
+                invTanggal.innerText = new Date().toLocaleDateString("id-ID");
+                invNama.innerText = keranjang[0].nama;
+                invLayanan.innerText = keranjang.map(i => i.layanan).join(", ");
+                invKg.innerText = keranjang.map(i => i.kg).join(", ");
+                invMetode.innerText = metode;
+                invTotal.innerText = "Rp " + window.totalSemua.toLocaleString("id-ID");
+
+                riwayat = [...riwayat, ...keranjang];
+
+                keranjang = [];
+                renderTable();
+
+                hideLoading();
+                show("invoice");
+            }, 900);
+        }
+
+        function lihatPesanan() {
+            let html = "";
+            if (riwayat.length == 0) {
+                html = "<tr><td colspan='4'>Belum ada pesanan</td></tr>";
+            } else {
+                riwayat.forEach(item => {
+                    html += `
+<tr>
+<td>${item.layanan}</td>
+<td>${item.kg}</td>
+<td>${item.status}</td>
+<td>${item.estimasi}</td>
+</tr>`;
+                });
+            }
+            cekTable.innerHTML = html;
+            show("cek");
+        }
+
+        function scrollUp() { window.scrollTo({ top: 0, behavior: "smooth" }); }
+        function scrollDown() { window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }); }
+    </script>
+
+</body>
+
+</html>
